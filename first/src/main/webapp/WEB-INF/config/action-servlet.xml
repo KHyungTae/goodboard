@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:p="http://www.springframework.org/schema/p"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="http://www.springframework.org/schema/beans"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:mvc="http://www.springframework.org/schema/mvc"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans 
+    	http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+       	http://www.springframework.org/schema/context 
+       	http://www.springframework.org/schema/context/spring-context-3.0.xsd
+       	http://www.springframework.org/schema/mvc 
+       	http://www.springframework.org/schema/mvc/spring-mvc.xsd
+       	http://www.springframework.org/schema/aop 
+       	http://www.springframework.org/schema/aop/spring-aop.xsd">
+       
+       <!-- component-scan의 역할은 스프링에서 자동적으로 스테레오 타입의 어노테이션을 등록해주는 역할을 한다.
+       		Controller, Service, DAO의 역할을 할 수 있었던 이유가 component-scan을 통해서 스프링이 자동적으로
+       		bean을 등록시켜줌으로써 그 기능을 했던 것이다. -->
+       		
+       <!-- use-default-filters="false"라는 값을 주게되면 이와 같은 어노테이션을 자동으로 검색하지 않겠다는 뜻이 된다. 
+			그리고 <context:include-filter> 태그에 해당하는 어노테이션만 검색하고 bean을 등록시켜 준다. 
+			여기서는 Controller 어노테이션만 검색을 한 것이다. 
+			나머지 @Service, @Repository, @Component 어노테이션은 다른곳에서 component-scan을 하게 할 것이다. 
+			왜 이렇게 설정하는지 의문이 들 것이다.  -->
+       <context:component-scan base-package="first" use-default-filters="false">
+       		<context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+	   </context:component-scan>
+       
+       <mvc:annotation-driven>
+       <!-- root context 영역에 등록해야하기때문에 이 .xml파일에 등록해야한다.
+       		<mvc:argument-resolvers>태그를 이용하여 우리가 만든 CustomMapArgumentResolver의 bean을 수동으로 등록 -->
+       		<mvc:argument-resolvers>
+       				<bean class="first.common.resolver.CustomMapArgumentResolver"></bean>
+       		</mvc:argument-resolvers>
+       </mvc:annotation-driven>
+       
+       <mvc:interceptors>
+       		<mvc:interceptor>
+       		<!-- mvc:mapping path를 통해서 인터셉터가 동작할 URL을 지정 
+       			 (모든요청서 동작하려면 전체패스를 의미하는 (/**)설정) 그 후, bean을 수동을 등록 -->
+       				<mvc:mapping path="/**"/>
+       				<bean id="loggerInterceptor" class="first.common.logger.LoggerInterceptor"></bean>
+       		</mvc:interceptor>
+       </mvc:interceptors>
+       
+       <bean class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping"/>
+       
+       <bean class="org.springframework.web.servlet.view.BeanNameViewResolver" p:order="0"/>
+       <!-- jsonView은 Controller에서 사용될 bean 설정, 호환성 유지 -->
+       <bean id="jsonView" class="org.springframework.web.servlet.view.json.MappingJackson2JsonView"/>
+       
+       <!-- AOP 설정 -->
+       <aop:aspectj-autoproxy/>
+       <bean id="loggerAspect" class="first.common.logger.LoggerAspect" />
+
+       <bean class="org.springframework.web.servlet.view.UrlBasedViewResolver"
+       		 p:order="1"
+       		 p:viewClass="org.springframework.web.servlet.view.JstlView"
+       		 p:prefix="/WEB-INF/jsp/" p:suffix=".jsp">
+       </bean>
+       
+       
+</beans>

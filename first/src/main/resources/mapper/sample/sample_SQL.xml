@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- MyBatis에서 사용하는 XML의 모습 (MyBatis에서는 변수 대입을 #{변수명}으로 사용. ) -->
+<!-- 호출할 쿼리가 저장될 XML파일 (모든쿼리는 namespace . SQL id(예: sample.selectBoardList) 의 구조로 구성) 
+	 중복된 쿼리id가 있을 수 있기때문에 namespace를 사용함. -->
+<mapper namespace="sample">
+
+		<!-- 게시판 목록에 보여줄 글번호, 제목, 조회수, 작성일만 조회
+			 <select>태그를 이용하여 이 쿼리가 select문이라는것을 명시 이 쿼리의 id는 selectBoardList로 정의
+			 prarmeterType="hashmap"부분은 이 쿼리가 실행될때 필요한 변수는 HashMap형태를 의미
+			 resultType="hashmap"부분은 이 쿼리의 결과값은 Hashmap에 담겨서 반환된다는 것을 의미 -->
+		<select id="selectBoardList" parameterType="hashmap" resultType="hashmap">
+		<include refid="common.pagingPre"/>
+				<![CDATA[
+				SELECT
+							ROW_NUMBER() OVER (ORDER BY IDX DESC) RNUM,
+							IDX,
+							CREA_ID,
+							TITLE,
+							HIT_CNT,
+							TO_CHAR(CREA_DTM, 'YYYY.MM.DD') AS CREA_DTM
+						FROM TB_BOARD
+						WHERE
+							DEL_GB = 'N'
+				]]>
+				<include refid="common.pagingPost"/>
+		</select>
+		<!-- useGeneratedKeys는 MyBatis에서 제공하는 기능으로 DB에 입력(insert, update)시 데이터베이스에서
+			 자동적으로 증가되는 키를 받는 JDBC의 useGeneratedKeys()메서드를 사용.
+			 keyProperty는 useGeneratedKeys()메서드나 insert구문의 selectkey에 의해 선택된 키를 세팅하는 속성.
+
+			 insert문에서 시퀀스를 따로 빼서 #{IDX}변수형태로 바꾸고 <selectKey>구문을 통해서 다음 게시글 번호를
+			 가져온 후, 그값은 파라미터에 다시 저장된다.
+
+			 즉, insert를 수행하고 난 후에는 파라미터였던 map에 IDX값이 담겨있게 된다. 그렇기 때문에
+			 FileUtils클래스에서 방금 insert가 되었던 IDX값을 사용할 수 있다. -->
+		<insert id="insertBoard" parameterType="hashmap" useGeneratedKeys="true" keyProperty="IDX">
+		<selectKey keyProperty="IDX" resultType="string" order="BEFORE">
+				SELECT SEQ_TB_BOARD.NEXTVAL FROM DUAL
+		</selectKey>
+				<![CDATA[
+						INSERT INTO TB_BOARD
+						(
+								IDX,
+								TITLE,
+								CONTENTS,
+								HIT_CNT,
+								DEL_GB,
+								CREA_DTM,
+								CREA_ID,
+								CREA_PW
+						)
+						VALUES
+						(
+								SEQ_TB_BOARD.NEXTVAL,
+								#{TITLE},
+								#{CONTENTS},
+								0,
+								'N',
+								SYSDATE,
+								#{CREA_ID},
+								#{CREA_PW}
+						)
+				]]>
+		</insert>
+
+		<update id="updateHitCnt" parameterType="hashmap">
+				<![CDATA[
+						UPDATE TB_BOARD
+						SET
+								HIT_CNT = NVL(HIT_CNT, 0) + 1
+						WHERE
+								IDX = #{IDX}
+				]]>
+		</update>
+
+		<select id="selectBoardDetail" parameterType="hashmap" resultType="hashmap">
+				<![CDATA[
+						SELECT
+								IDX,
+								HIT_CNT,
+								CREA_ID,
+								CREA_DTM,
+								TITLE,
+								CONTENTS,
+								CREA_PW
+						FROM
+								TB_BOARD
+						WHERE
+								IDX = #{IDX}
+				]]>
+		</select>
+
+		<update id="updateBoard" parameterType="hashmap">
+				<![CDATA[
+						UPDATE TB_BOARD
+						SET
+								TITLE = #{TITLE},
+								CONTENTS = #{CONTENTS}
+						WHERE
+								IDX = #{IDX}
+				]]>
+		</update>
+		
+		<select id="checkPw" parameterType="hashmap" resultType="hashmap">
+		<![CDATA[
+			SELECT
+			*
+			FROM
+			TB_BOARD
+			WHERE
+			CREA_ID = #{CREA_PW} and CREA_PW = #{CREA_PW}
+		]]>
+		</select>
+		
+		<!-- 실제 실행되는 것은 update이다. DEL_GB컬럼은 해당 게시글의 삭제여부를 저장하는 컬럼이다.
+			 DEL_GB = "Y"면 삭제가 된글로 처리 (완전히 삭제시키려고하면, delete문을 실행시키면 된다.)
+			 delete문을 통해서 게시글을 삭제하기보다는 구분값을 변경하여 게시글의 삭제 여부를 변경한다. -->
+		<update id="deleteBoard" parameterType="hashmap">
+				<![CDATA[
+						UPDATE TB_BOARD
+						SET
+								DEL_GB = 'Y'
+						WHERE
+								IDX = #{IDX}
+				]]>
+		</update>
+		<!-- 업로드 쿼리 -->
+		<!-- <insert id="insertFile" parameterType="hashmap">
+				<![CDATA[
+						INSERT INTO TB_FILE
+						(
+								IDX,
+								BOARD_IDX,
+								ORIGINAL_FILE_NAME,
+								STORED_FILE_NAME,
+								FILE_SIZE,
+								CREA_ID
+						)
+						VALUES
+						(
+								SEQ_TB_FILE_IDX.NEXTVAL,
+								#{BOARD_IDX},
+								#{ORIGINAL_FILE_NAME},
+								#{STORED_FILE_NAME},
+								#{FILE_SIZE},
+								'Admin'
+						)
+				]]>
+		</insert> -->
+		<!-- 첨부파일의 목록을 조회하는 쿼리
+			 첨부파일 크기를 Kb단위로 보여주기 위해서 ROUND함수를 사용 -->
+		<!-- <select id="selectFileList" parameterType="hashmap" resultType="hashmap">
+				<![CDATA[
+						SELECT
+								IDX,
+								ORIGINAL_FILE_NAME,
+								ROUND(FILE_SIZE/1024,1) AS FILE_SIZE
+						FROM
+								TB_FILE
+						WHERE
+								BOARD_IDX = #{IDX}
+								AND DEL_GB = 'N'
+				]]>
+		</select> -->
+
+		<!-- 다중업로드 삭제 쿼리 -->
+		<!-- <update id="deleteFileList" parameterType="hashmap">
+				<![CDATA[
+						UPDATE TB_FILE SET
+								DEL_GB = 'Y'
+						WHERE
+								BOARD_IDX = #{IDX}
+				]]>
+		</update> -->
+
+		<!-- 다중 업로드 수정 쿼리 -->
+		<!-- <update id="updateFile" parameterType="hashmap">
+				<![CDATA[
+						UPDATE TB_FILE SET
+								DEL_GB = 'N'
+						WHERE
+								IDX = #{FILE_IDX}
+				]]>
+		</update> -->
+</mapper>
