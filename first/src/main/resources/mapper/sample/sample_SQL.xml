@@ -13,7 +13,7 @@
 		<include refid="common.pagingPre"/>
 				<![CDATA[
 				SELECT
-							ROW_NUMBER() OVER (ORDER BY IDX DESC) RNUM,
+							ROW_NUMBER() OVER (ORDER BY IDX) RNUM,
 							IDX,
 							CREA_ID,
 							TITLE,
@@ -34,10 +34,8 @@
 
 			 즉, insert를 수행하고 난 후에는 파라미터였던 map에 IDX값이 담겨있게 된다. 그렇기 때문에
 			 FileUtils클래스에서 방금 insert가 되었던 IDX값을 사용할 수 있다. -->
-		<insert id="insertBoard" parameterType="hashmap" useGeneratedKeys="true" keyProperty="IDX">
-		<selectKey keyProperty="IDX" resultType="string" order="BEFORE">
-				SELECT SEQ_TB_BOARD.NEXTVAL FROM DUAL
-		</selectKey>
+		<insert id="insertBoard" parameterType="hashmap">
+		
 				<![CDATA[
 						INSERT INTO TB_BOARD
 						(

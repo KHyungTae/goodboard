@@ -19,7 +19,7 @@
 
 	<sql id="pagingPre"> <![CDATA[ SELECT AAA.* FROM( SELECT COUNT(*) OVER() AS TOTAL_COUNT, AA.* FROM( ]]>
 	</sql>
-	<sql id="pagingPost"> <![CDATA[ ) AA ) AAA WHERE AAA.RNUM BETWEEN #{START} AND #{END} ]]>
+	<sql id="pagingPost"> <![CDATA[ ) AA ) AAA WHERE AAA.RNUM BETWEEN #{START} AND #{END} ORDER BY RNUM DESC ]]>
 	</sql>
 
 

@@ -29,7 +29,7 @@
 			</tr>
 			<tr>
 				<th scope="row" style="text-align:center;">작성자</th>
-				<td>${map.CREA_ID }</td>
+				<td><input type="text" id="CREA_ID" name="CREA_ID" class="wdp_60" value="${map.CREA_ID }"/></td>
 				<th scope="row" style="text-align:center;">작성시간</th>
 				<td>${map.CREA_DTM }</td>
 			</tr>

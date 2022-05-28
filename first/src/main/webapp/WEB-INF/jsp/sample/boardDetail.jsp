@@ -29,16 +29,17 @@
 		</tr>
 		<tr>
 			<th scope="row" style="text-align:center;">작성자</th>
-			<td>${map.CREA_ID }</td>
+			<td><c:out value="${map.CREA_ID }" escapeXml="true"></c:out></td>
+			
 			<th scope="row" style="text-align:center;">작성시간</th>
 			<td>${map.CREA_DTM }</td>
 		</tr>
 		<tr>
 			<th scope="row" style="text-align:center;">제  목</th>
-			<td colspan="3"><textarea class="title_view" readonly><c:out value="${map.TITLE }"></c:out></textarea></td>
+			<td colspan="3" style="text-align:left;"><c:out value="${map.TITLE }" escapeXml="true"></c:out></td>
 		</tr>
 		<tr>
-			<td colspan="4"><textarea class="content_view" readonly><c:out value="${map.CONTENTS }"></c:out></textarea></td>
+			<td colspan="4"><textarea class="content_view" readonly><c:out value="${map.CONTENTS }" escapeXml="true"></c:out></textarea></td>
 		</tr>
 		
 		

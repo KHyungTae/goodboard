@@ -109,7 +109,7 @@ function gfn_renderPaging(params) { //함수에서 파라미터는 params라는 
 	
 	var recordCount = params.recordCount; //페이지당 레코드 수
 	if(gfn_isNull(recordCount) == true) {
-		recordCount = 20;
+		recordCount = 10;
 	}
 	
 	var totalIndexCount = Math.ceil(totalCount / recordCount); //전체 인덱스 수

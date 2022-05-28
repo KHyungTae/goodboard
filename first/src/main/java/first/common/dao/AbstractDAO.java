@@ -72,7 +72,7 @@ public class AbstractDAO {
 		String strPageRow = (String)map.get("PAGE_ROW"); //화면에서 PAGE_ROW 값을 보내주도록함.
 		//혹시모를 예외상황에 대비하여 해당 값을 각각 0과 20으로 설정
 		int nPageIndex = 0;
-		int nPageRow = 10;
+		int nPageRow = 20;
 		
 		if(StringUtils.isEmpty(strPageIndex) == false) {
 			nPageIndex = Integer.parseInt(strPageIndex)-1;
