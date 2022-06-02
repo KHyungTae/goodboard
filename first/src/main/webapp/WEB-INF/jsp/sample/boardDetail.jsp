@@ -64,7 +64,8 @@
 <div style="float:right;">
 <a href="#this" class="btn btn-default" id="list">목록으로</a>
 </div>
-<div style="float: left;">
+<div style="float: left; text-align: left;">
+<input type="text" id="crea_pw" name="crea_pw" class="wdp_60">
 <a href="#this" class="btn btn-default" id="update">수정하기</a>
 </div>
 </div>

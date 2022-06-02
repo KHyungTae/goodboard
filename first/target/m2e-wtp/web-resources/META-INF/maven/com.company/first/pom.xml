@@ -130,6 +130,18 @@
 			<version>1.2.0</version>
 		</dependency>
 		
+		<!-- jquery -->
+		<dependency>
+			<groupId>org.webjars.bower</groupId>
+			<artifactId>jquery</artifactId>
+			<version>3.5.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>webjars-locator</artifactId>
+			<version>0.40</version>
+		</dependency>
+		
 		<!-- DBCP -->
 		<dependency>
 			<groupId>org.apache.tomcat</groupId>

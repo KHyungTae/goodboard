@@ -22,18 +22,18 @@
 			</tr>
 			<tr>
 				<th scope="row" style="text-align:center;">제  목</th>  <!-- name="TITLE"은 SQL.xml의 변수명과 같다. name을 키로 데이터가 서버에 전송 -->
-				<td><input type="text" id="title" name="TITLE" class="wdp_90" maxlength="30"></input></td>
+				<td><input type="text" id="title" name="TITLE" class="wdp_90" maxlength="50"></input></td>
 			</tr>
 			
 			<tr>
 				<th scope="row" style="text-align:center;">작성자</th>  <!-- name="CREA_ID"은 SQL.xml의 변수명과 같다. name을 키로 데이터가 서버에 전송 -->
-				<td><input type="text" id="crea_id" name="CREA_ID" class="wdp_90" maxlength="10"></input></td>
+				<td><input type="text" id="crea_id" name="CREA_ID" class="wdp_90" maxlength="5"></input></td>
 			</tr>
 			
 			<tr>  
 				<td colspan="2" class="view_text">
-					<textarea class="content_view" rows="20" cols="100" title="내용" id="contents" name="CONTENTS" onkeyup="chkMsgLength(500,this,txt_Byte);" placeholder="500자 이내로 작성하실 수 있습니다."></textarea>
-					<p style="float:right;"><span id="txt_Byte" style="padding-left:60;">0</span>/500</p>
+					<textarea style="resize: none;" class="content_view" rows="20" cols="100" title="내용" id="contents" name="CONTENTS" placeholder="글을 입력하세요."></textarea>
+					<div style="float:right;" id="contents_cnt">(0 / 300)</div>
 				</td>   <!-- name="CONTENTS"은 SQL.xml의 변수명과 같다. name을 키로 데이터가 서버에 전송 -->
 				
           
@@ -145,82 +145,16 @@
 </script>
 
 <script type="text/javascript">
-
-//메세지 바이트 체크
-function chkMsgLength(intMax,objMsg,st) {
-	var length = lengthMsg(objMsg.value);
-		st.innerHTML = length;//현재 byte수를 넣는다
-	if (length > intMax) {
-		alert("문자메세지는 500글자 이상이므로 초과된 글자수는 자동으로 삭제됩니다.\n");
-		objMsg.value = objMsg.value.replace(/\r\n$/, "");
-		objMsg.value = assertMsg(intMax,objMsg.value, st);
-	}
-}
-
-
-function TempNull() {
-	return false;
-}
-
-
-// 현재 메시지 바이트 수 계산
-function lengthMsg(objMsg) {
-	var nbytes = 0;
-		for (i=0; i<objMsg.length; i++) {
-			var ch = objMsg.charAt(i);
-		if(escape(ch).length > 50) {
-			nbytes += 2;
+$(document).ready(function(){
+	$('#contents').on('keyup', function() {
+		$('#contents_cnt').html("("+$(this).val().length+" / 300)");
+	
+		if($(this).val().length > 300) {
+			$(this).val($(this).val().substring(0, 300));
+			$('#contents.cnt').html("(300 . 300)");
 		}
-		else if (ch == '\n') {
-		if (objMsg.charAt(i-1) != '\r') {
-			nbytes += 1;
-			}
-		}
-		else if (ch == '<' || ch == '>') {
-			nbytes += 50;
-		}
-		else {
-			nbytes += 1;
-		}
-	}
-		return nbytes;
-}
-
-// 80 바이트 넘는 문자열 자르기
-
-	function assertMsg(intMax, objMsg, st) {
-		var inc = 0;
-		var nbytes = 0;
-		var msg = "";
-		var msglen = objMsg.length;
-
-		for (i = 0; i < msglen; i++) {
-			var ch = objMsg.charAt(i);
-
-			if (escape(ch).length > 50) {
-				inc = 2;
-			} else if (ch == '\n') {
-				if (objMsg.charAt(i - 1) != '\r') {
-					inc = 1;
-				}
-			} else if (ch == '<' || ch == '>') {
-				inc = 50;
-			} else {
-				inc = 1;
-			}
-
-			if ((nbytes + inc) > intMax) {
-				break;
-			}
-
-			nbytes += inc;
-			msg += ch;
-		}
-
-		st.innerHTML = nbytes; //현재 byte수를 넣는다
-
-		return msg;
-	}
+	});
+});
 </script>
 
 <script type="text/javascript">
